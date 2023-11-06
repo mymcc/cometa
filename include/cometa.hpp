@@ -115,7 +115,7 @@ template <typename... T>
 using common_type = typename std::common_type<T...>::type;
 
 template <typename T>
-using result_of = typename std::result_of<T>::type;
+using result_of = typename std::invoke_result_t<T>::type;
 
 template <bool Condition, typename Type = void>
 using enable_if = typename std::enable_if<Condition, Type>::type;
@@ -1500,7 +1500,7 @@ private:
 template <typename Ret, typename... Args, typename T, typename Fn, typename DefFn = fn_noop>
 CMT_INLINE function<Ret(Args...)> cdispatch(cvals_t<T>, identity<T>, Fn&&, DefFn&& deffn = DefFn())
 {
-    return [=](Args... args) CMT_INLINE_MEMBER -> Ret { return deffn(std::forward<Args>(args)...); };
+    return [=](Args... args)-> Ret { return deffn(std::forward<Args>(args)...); };
 }
 
 template <typename Ret, typename... Args, typename T, T v0, T... values, typename Fn,
@@ -1511,7 +1511,7 @@ inline function<Ret(Args...)> cdispatch(cvals_t<T, v0, values...>, identity<T> v
     if (value == v0)
     {
         return [=](Args... args)
-                   CMT_INLINE_MEMBER -> Ret { return fn(cval<T, v0>, std::forward<Args>(args)...); };
+                   -> Ret { return fn(cval<T, v0>, std::forward<Args>(args)...); };
     }
     else
     {
